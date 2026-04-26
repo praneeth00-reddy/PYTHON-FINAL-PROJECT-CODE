@@ -1,85 +1,107 @@
 import csv
- import datetime
- import numpy as np
- import pandas as pd
- import matplotlib.pyplot as plt
- # STUDENT CLASS 
- class Student:
+import datetime
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# STUDENT CLASS
+class Student:
     def __init__(self, student_id, name, dept):
         self.student_id = student_id
         self.name = name
         self.dept = dept
- #  QUIZ CLASS 
- class Quiz:
+
+
+# QUIZ CLASS
+class Quiz:
     def __init__(self):
         self.questions = [
-           "1. Python is a ___ language? \n A) Low-level \n B) High-level\n C) Machine\n D)        Assembly",
-            "2. Which is used for data analysis? \n A) NumPy\n B) Pandas\n C) Matplotlib\n D)   All",
-            "3. Which keyword is used for function? \n A) fun\n B) define\n C) def\n D) function"
+            "1. Python is a ___ language?\nA) Low-level\nB) High-level\nC) Machine\nD) Assembly",
+            "2. Which is used for data analysis?\nA) NumPy\nB) Pandas\nC) Matplotlib\nD) All",
+            "3. Which keyword is used for function?\nA) fun\nB) define\nC) def\nD) function"
         ]
         self.answers = ['B', 'D', 'C']
- #  RESULT CLASS 
- class Result:
-    def __init__ (self, student_id, score, percentage):
+
+
+# RESULT CLASS
+class Result:
+    def __init__(self, student_id, score, percentage):
         self.student_id = student_id
         self.score = score
         self.percentage = percentage
         self.timestamp = datetime.datetime.now()
- #  MAIN SYSTEM 
- class QAPAS:
- def __init__(self):
+
+
+# MAIN SYSTEM
+class QAPAS:
+    def __init__(self):
         self.students = {}
         self.quiz = Quiz()
         self.results_file = "results.csv"
-  # STUDENT REGISTRATION 
+
+    # STUDENT REGISTRATION
     def register_student(self):
-        student_id = input("Enter Student ID: 
- 
+        student_id = input("Enter Student ID: ")
+        
         if student_id in self.students:
             print("Student already exists!")
             return
+
         name = input("Enter Name: ")
         dept = input("Enter Department: ")
         self.students[student_id] = Student(student_id, name, dept)
         print("Student Registered Successfully!\n")
-# QUIZ 
+
+    # QUIZ
     def attempt_quiz(self):
         student_id = input("Enter Student ID: ")
+        
         if student_id not in self.students:
             print("Student not found!")
             return
+
         score = 0
-        user_answers = []
+
         for i, q in enumerate(self.quiz.questions):
             print(q)
             ans = input("Enter answer: ").upper()
-            user_answers.append(ans)
+
             if ans == self.quiz.answers[i]:
                 score += 1
+
         percentage = (score / len(self.quiz.questions)) * 100
+
         print(f"\nScore: {score}")
         print(f"Percentage: {percentage:.2f}%")
+
         self.save_result(Result(student_id, score, percentage))
-#  SAVE RESULT 
+
+    # SAVE RESULT
     def save_result(self, result):
         file_exists = False
+        
         try:
             with open(self.results_file, 'r'):
                 file_exists = True
         except FileNotFoundError:
             file_exists = False
+
         with open(self.results_file, 'a', newline='') as file:
             writer = csv.writer(file)
+
             if not file_exists:
                 writer.writerow(["Student_ID", "Score", "Percentage", "Timestamp"])
+
             writer.writerow([
                 result.student_id,
                 result.score,
                 result.percentage,
-    result.timestamp
+                result.timestamp
             ])
+
         print("Result Saved Successfully!\n")
-    #  ANALYTICS 
+
+    # ANALYTICS
     def analytics(self):
         try:
             df = pd.read_csv(self.results_file)
@@ -87,22 +109,29 @@ import csv
             print("\n--- Analytics ---")
             print("Average Score:", np.mean(df["Score"]))
             print("Highest Score:", np.max(df["Score"]))
-            print("Lowest Score:", np.min(df["Score"]))           
-  # Bar Chart
+            print("Lowest Score:", np.min(df["Score"]))
+
+            # Bar Chart
             df.groupby("Student_ID")["Score"].mean().plot(kind='bar')
             plt.title("Student-wise Performance")
             plt.xlabel("Student ID")
             plt.ylabel("Average Score")
             plt.show()
+
             # Pie Chart
             pass_count = (df["Percentage"] >= 40).sum()
             fail_count = (df["Percentage"] < 40).sum()
-            plt.pie([pass_count, fail_count], labels=["Pass", "Fail"], autopct='%1.1f%%')
+
+            plt.pie([pass_count, fail_count],
+                    labels=["Pass", "Fail"],
+                    autopct='%1.1f%%')
             plt.title("Pass/Fail Distribution")
             plt.show()
+
         except Exception as e:
             print("Error in analytics:", e)
- # MENU 
+
+    # MENU
     def menu(self):
         while True:
             print("\n--- QAPAS MENU ---")
@@ -110,7 +139,9 @@ import csv
             print("2. Attempt Quiz")
             print("3. View Analytics")
             print("4. Exit")
+
             choice = input("Enter choice: ")
+
             if choice == '1':
                 self.register_student()
             elif choice == '2':
@@ -122,7 +153,9 @@ import csv
                 break
             else:
                 print("Invalid choice!")
-#  RUN PROGRAM 
+
+
+# RUN PROGRAM
 if __name__ == "__main__":
     system = QAPAS()
     system.menu()
